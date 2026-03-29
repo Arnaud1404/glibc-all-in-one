@@ -41,8 +41,8 @@ download_single() {
   wget "$url" 2>/dev/null -O debs/$deb_name || die "Failed to download package from $url"
   echo "  -> Extracting libc binary package"
 
-  mkdir libs/$id
-  ./extract debs/$deb_name libs/$id
+  mkdir -p "libs/$id"
+  ./extract "debs/$deb_name" "libs/$id" || die "Failed to extract package debs/$deb_name"
   echo "  -> Package saved to libs/$id"
 
   # download debug info package
@@ -52,8 +52,8 @@ download_single() {
   wget "$url" 2>/dev/null -O debs/$dbg_name || die "Failed to download package from $url"
   echo "  -> Extracting libc debug package"
 
-  mkdir libs/$id/.debug
-  ./extract debs/$dbg_name libs/$id/.debug
+  mkdir -p "libs/$id/.debug"
+  ./extract "debs/$dbg_name" "libs/$id/.debug" || die "Failed to extract package debs/$dbg_name"
   echo "  -> Package saved to libs/$id/.debug"
 }
 

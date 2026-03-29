@@ -12,36 +12,38 @@ usage() {
 }
 
 extract() {
-    local deb=`readlink -f $1`
-    local out=$2
+    local deb
+    deb=$(readlink -f "$1")
+    local out="$2"
     if [ ! -d "$out" ]; then
-        mkdir $out
+        mkdir -p "$out"
     fi
-    local tmp=`mktemp -d`
+    local tmp
+    tmp=$(mktemp -d)
 
-    cd $tmp
-    ar xv $deb || die "ar failed"
+    cd "$tmp" || die "cd failed"
+    ar xv "$deb" || die "ar failed"
     if [ -f "data.tar.zst" ];then
         tar -I zstd -xf data.tar.* || die "tar failed"
     else
         tar xf data.tar.* || die "tar failed"
     fi
-    cd -
+    cd - >/dev/null || die "cd failed"
 
-    cp -rP $tmp/usr/lib/x86_64-linux-gnu/* $out 2>/dev/null
-    cp -rP $tmp/lib/*/* $out 2>/dev/null
-    cp -rP $tmp/lib32/* $out 2>/dev/null
-    cp -rP $tmp/usr/lib64/* $out 2>/dev/null
-    cp -rP $tmp/usr/lib/*/* $out 2>/dev/null
-    cp -rP $tmp/usr/lib/debug/lib/*/* $out 2>/dev/null
-    cp -rP $tmp/usr/lib/debug/lib32/* $out 2>/dev/null
-    cp -rP $tmp/usr/lib/debug/.build-id $out 2>/dev/null
+    cp -rP "$tmp"/usr/lib/x86_64-linux-gnu/* "$out" 2>/dev/null
+    cp -rP "$tmp"/lib/*/* "$out" 2>/dev/null
+    cp -rP "$tmp"/lib32/* "$out" 2>/dev/null
+    cp -rnP "$tmp"/usr/lib64/* "$out" 2>/dev/null
+    cp -rP "$tmp"/usr/lib/*/* "$out" 2>/dev/null
+    cp -rP "$tmp"/usr/lib/debug/lib/*/* "$out" 2>/dev/null
+    cp -rP "$tmp"/usr/lib/debug/lib32/* "$out" 2>/dev/null
+    cp -rP "$tmp"/usr/lib/debug/.build-id "$out" 2>/dev/null
 
-    if [ ! "$(ls -A $out)" ]; then
+    if [ ! "$(ls -A "$out")" ]; then
         die "Failed to save. Check it manually $tmp"
     fi
 
-    rm -rf $tmp
+    rm -rf "$tmp"
 }
 
 if [[ $# -ne 2 ]]; then
